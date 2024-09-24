@@ -6,7 +6,7 @@ export default function ProductScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={{ flex: 8}}>
+      <View style={{ flex: 8 }}>
         <View
           style={{
             flex: 6,
@@ -14,11 +14,16 @@ export default function ProductScreen({ route, navigation }) {
             justifyContent: 'flex-start',
           }}>
           <Image
-            source={require('../assets/vs_black.png')}
+            source={image}
             style={{ resizeMode: 'contain', width: '70%', height: '100%' }}
           />
         </View>
-        <View style={{ flex: 4, justifyContent: 'space-between', alignItems: 'center' }}>
+        <View
+          style={{
+            flex: 4,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
           <Text>{name}</Text>
           <View
             style={{
@@ -29,11 +34,11 @@ export default function ProductScreen({ route, navigation }) {
             }}>
             <View style={{ flexDirection: 'row' }}>
               {' '}
-              <Star />
-              <Star />
-              <Star />
-              <Star />
-              <Star />
+              <Star fill="#FFEB00" strokeWidth={0} />
+              <Star fill="#FFEB00" strokeWidth={0} />
+              <Star fill="#FFEB00" strokeWidth={0} />
+              <Star fill="#FFEB00" strokeWidth={0} />
+              <Star fill="#FFEB00" strokeWidth={0} />
             </View>
             <Text>(Xem {totalRate} đánh giá)</Text>
           </View>
@@ -84,12 +89,14 @@ export default function ProductScreen({ route, navigation }) {
               width: '80%',
               justifyContent: 'center',
               alignItems: 'center',
-            }}>
+            }}
+            onPress={() => navigation.navigate('ProductDetailScreeen', {name: name})}>
             <Text>4 MÀU - CHỌN MÀU ></Text>
           </Pressable>
         </View>
       </View>
-      <View style={{ flex: 2, justifyContent: 'flex-end', alignItems: 'center' }}>
+      <View
+        style={{ flex: 2, justifyContent: 'flex-end', alignItems: 'center' }}>
         <Pressable
           style={{
             height: 40,
@@ -97,9 +104,9 @@ export default function ProductScreen({ route, navigation }) {
             alignItems: 'center',
             backgroundColor: '#ee0a0a',
             borderRadius: 5,
-            width: '80%'
+            width: '80%',
           }}>
-          <Text style={{color: 'white'}}>CHỌN MUA</Text>
+          <Text style={{ color: 'white' }}>CHỌN MUA</Text>
         </Pressable>
       </View>
     </View>
