@@ -109,6 +109,7 @@ export default function Screen01() {
             <Item name={item.name} img={item.img} supplier={item.supplier} />
           )}
           keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
         />
       </View>
 
