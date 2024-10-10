@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
+import { 
+  Text, 
+  View, 
+  StyleSheet, 
+  TouchableOpacity, 
+  FlatList, 
+  TextInput, 
+  Switch 
 } from 'react-native';
-import {
-  Check,
-  Pencil,
-  Trash2,
-  Search
-} from 'lucide-react';
+import { Checkbox } from 'react-native-paper';
+import { Check, Pencil, Trash2, Search } from 'lucide-react';
 import axios from 'axios';
 
-const Item = ({ job, id, onDelete }) => (
+const Item = ({ job, completed, id, onDelete, onToggleCompleted }) => (
   <View
     style={{
       flexDirection: 'row',
@@ -28,7 +25,11 @@ const Item = ({ job, id, onDelete }) => (
       borderRadius: 5,
     }}>
     <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-      <Check style={{ color: 'green' }} />
+     <Checkbox
+      status={completed ? 'checked' : 'unchecked'}
+      onPress={() => onToggleCompleted(id, !completed)}
+      color={'#295F98'}
+    />
     </View>
     <View style={{ flex: 4, flexDirection: 'row', alignItems: 'center' }}>
       <Text>{job}</Text>
@@ -66,8 +67,8 @@ const Item = ({ job, id, onDelete }) => (
   </View>
 );
 
-export default function Screen01() {
 
+export default function Screen01() {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
@@ -75,9 +76,10 @@ export default function Screen01() {
       .get('https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo')
       .then((res) => {
         setJobs(res.data);
+        console.log(jobs)
       })
       .catch((error) => {
-        console.error("Có lỗi xảy ra khi lấy dữ liệu:", error);
+        console.error('Có lỗi xảy ra khi lấy dữ liệu:', error);
       });
   }, []);
 
@@ -88,9 +90,25 @@ export default function Screen01() {
         setJobs((prevJobs) => prevJobs.filter((job) => job.id !== id));
       })
       .catch((error) => {
-        console.error("Có lỗi xảy ra khi xóa công việc:", error);
+        console.error('Có lỗi xảy ra khi xóa công việc:', error);
       });
   };
+
+  const handleToggleCompleted = (id, completed) => {
+  axios
+    .put(`https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo/${id}`, { completed })
+    .then(() => {
+      setJobs((prevJobs) =>
+        prevJobs.map((job) =>
+          job.id === id ? { ...job, completed } : job
+        )
+      );
+    })
+    .catch((error) => {
+      console.error("Có lỗi xảy ra khi cập nhật công việc:", error);
+    });
+};
+
 
   return (
     <View style={styles.container}>
@@ -125,7 +143,15 @@ export default function Screen01() {
       <View style={{ flex: 8, marginTop: 10 }}>
         <FlatList
           data={jobs}
-          renderItem={({ item }) => <Item job={item.job} id={item.id} onDelete={handleDelete} />}
+          renderItem={({ item }) => (
+            <Item
+              job={item.job}
+              completed={item.completed}
+              id={item.id}
+              onDelete={handleDelete}
+              onToggleCompleted = {handleToggleCompleted}
+            />
+          )}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
         />
