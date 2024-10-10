@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Text, 
-  View, 
-  StyleSheet, 
-  TouchableOpacity, 
-  FlatList, 
-  TextInput, 
-  Switch 
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Switch,
 } from 'react-native';
 import { Checkbox } from 'react-native-paper';
-import { Check, Pencil, Trash2, Search } from 'lucide-react';
+import { Check, Pencil, Trash2, Search, Plus } from 'lucide-react';
 import axios from 'axios';
 
 const Item = ({ job, completed, id, onDelete, onToggleCompleted }) => (
@@ -25,11 +25,11 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted }) => (
       borderRadius: 5,
     }}>
     <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-     <Checkbox
-      status={completed ? 'checked' : 'unchecked'}
-      onPress={() => onToggleCompleted(id, !completed)}
-      color={'#295F98'}
-    />
+      <Checkbox
+        status={completed ? 'checked' : 'unchecked'}
+        onPress={() => onToggleCompleted(id, !completed)}
+        color={'#295F98'}
+      />
     </View>
     <View style={{ flex: 4, flexDirection: 'row', alignItems: 'center' }}>
       <Text>{job}</Text>
@@ -59,24 +59,23 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted }) => (
           alignItems: 'center',
           borderRadius: 5,
         }}
-        onPress={() => onDelete(id)}
-      >
+        onPress={() => onDelete(id)}>
         <Trash2 style={{ color: 'red' }} />
       </TouchableOpacity>
     </View>
   </View>
 );
 
-
 export default function Screen01() {
   const [jobs, setJobs] = useState([]);
+  const [newJob, setNewJob] = useState('');
 
   useEffect(() => {
     axios
       .get('https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo')
       .then((res) => {
         setJobs(res.data);
-        console.log(jobs)
+        console.log(jobs);
       })
       .catch((error) => {
         console.error('Có lỗi xảy ra khi lấy dữ liệu:', error);
@@ -95,20 +94,37 @@ export default function Screen01() {
   };
 
   const handleToggleCompleted = (id, completed) => {
-  axios
-    .put(`https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo/${id}`, { completed })
-    .then(() => {
-      setJobs((prevJobs) =>
-        prevJobs.map((job) =>
-          job.id === id ? { ...job, completed } : job
-        )
-      );
-    })
-    .catch((error) => {
-      console.error("Có lỗi xảy ra khi cập nhật công việc:", error);
-    });
-};
+    axios
+      .put(`https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo/${id}`, {
+        completed,
+      })
+      .then(() => {
+        setJobs((prevJobs) =>
+          prevJobs.map((job) => (job.id === id ? { ...job, completed } : job))
+        );
+      })
+      .catch((error) => {
+        console.error('Có lỗi xảy ra khi cập nhật công việc:', error);
+      });
+  };
 
+  const handleAddJob = () => {
+    if (newJob.trim() !== '') {
+      const newJobData = { job: newJob, completed: false };
+      axios
+        .post(
+          'https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/todo',
+          newJobData
+        )
+        .then((res) => {
+          setJobs((prevJobs) => [...prevJobs, res.data]);
+          setNewJob('');
+        })
+        .catch((error) => {
+          console.error('Có lỗi xảy ra khi thêm công việc mới:', error);
+        });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -149,11 +165,33 @@ export default function Screen01() {
               completed={item.completed}
               id={item.id}
               onDelete={handleDelete}
-              onToggleCompleted = {handleToggleCompleted}
+              onToggleCompleted={handleToggleCompleted}
             />
           )}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
+        />
+      </View>
+
+
+      <View
+        style={{
+          width: '100%',
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          marginTop: 10,
+          marginBottom: 20,
+          borderRadius: 10,
+        }}>
+        <TouchableOpacity onPress={handleAddJob}>
+          <Plus style={{ backgroundColor: '#ccc', padding: 5 }} />
+        </TouchableOpacity>
+        <TextInput
+          style={{ height: '100%', backgroundColor: '#ccc', width: '80%' }}
+          placeholder="Thêm công việc mới"
+          value={newJob}
+          onChangeText={setNewJob}
         />
       </View>
     </View>
