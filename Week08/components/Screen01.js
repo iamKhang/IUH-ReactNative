@@ -12,15 +12,21 @@ export default function Screen01({ route, navigation }) {
             justifyContent: 'center',
           }}>
           <Image
-            source={require('../assets/avt.jpg')}
-            style={{ height: '30%', resizeMode: 'contain' }}
+            source={require('../assets/doraemon.jpg')}
+            style={{
+              height: 200,
+              width: 200,
+              resizeMode: 'cover',
+              borderRadius: 50, 
+            }}
           />
         </View>
+
         <View style={{ flex: 3, alignItems: 'center' }}>
-          <Text style={{ fontSize: 20, fontWeight: 800, color: 'violet' }}>
+          <Text style={{ fontSize: 20, fontWeight: 800, color: '#295F98' }}>
             MANAGE YOUR
           </Text>
-          <Text style={{ fontSize: 20, fontWeight: 800, color: 'violet' }}>
+          <Text style={{ fontSize: 20, fontWeight: 800, color: '#295F98' }}>
             TASK
           </Text>
           <View
@@ -44,7 +50,7 @@ export default function Screen01({ route, navigation }) {
         <TouchableOpacity
           style={{
             flexDirection: 'row',
-            backgroundColor: '#0DBABA',
+            backgroundColor: '#295F98',
             width: '40%',
             justifyContent: 'center',
             alignItems: 'center',
