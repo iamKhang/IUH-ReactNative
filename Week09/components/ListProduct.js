@@ -1,129 +1,90 @@
 import {
   Text,
   View,
-  StyleSheet,
   Image,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
 import { Heart } from 'lucide-react';
-
-const products = [
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pinarello',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-
-  {
-    image: require('../assets/xe01.png'),
-    name: 'Pina Mountain',
-    price: 1800,
-    type: 'Mountain',
-    description:
-      'It is a very important form of writing as we write almost everything in paragraphs, be it an answer, essay, story, emails, etc.',
-    discount: 0.4,
-    liked: true,
-  },
-];
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Item = ({ name, img, price, liked }) => (
   <View
     style={{
       alignItems: 'center',
-      paddingVertical: 10,
-      width: '40%',
       position: 'relative',
-      borderRadius: 5,
-      marginHorizontal: '5%',
+      borderRadius: 10,
+      width: '48%',
+      marginHorizontal: '1%',
       marginVertical: '2%',
       backgroundColor: '#F7BA8326',
+      padding: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
     }}>
     <Image
-      source={img}
-      style={{ resizeMode: 'contain', width: 60, height: 60 }}
+      source={{ uri: img }}
+      style={{
+        resizeMode: 'contain',
+        width: 120,
+        height: 120,
+      }}
     />
-
-    <Text style={{}}>{name}</Text>
-    <View style={{ flexDirection: 'row' }}></View>
-    <Text style={{}}>$ {price.toLocaleString('vi-VN')}</Text>
-    <View style={{ position: 'absolute', left: '4%' }}>
-      <Heart color='#E94141' />
+    <Text
+      style={{
+        fontSize: 16,
+        fontWeight: '600',
+        marginVertical: 5,
+      }}>
+      {name}
+    </Text>
+    <Text
+      style={{
+        fontSize: 16,
+        color: '#E94141',
+        marginBottom: 5,
+      }}>
+      $ {price.toLocaleString('vi-VN')}
+    </Text>
+    <View style={{ position: 'absolute', top: 10, left: 10 }}>
+    {liked === true ? <Heart color="#E94141" fill="#E94141" /> :<Heart color="#E94141" />}
+      
     </View>
   </View>
 );
 
 export default function Main({ route, navigation }) {
+  const [bikes, setBikes] = useState([]);
+  const [filteredBikes, setFilteredBikes] = useState([]); 
+  const [selectedType, setSelectedType] = useState('All'); 
+
+  useEffect(() => {
+    axios
+      .get('https://66ff33ca2b9aac9c997e80a0.mockapi.io/api/bike_data')
+      .then((res) => {
+        setBikes(res.data);
+        setFilteredBikes(res.data);
+      })
+      .catch((error) => {
+        console.error('Có lỗi xảy ra khi lấy dữ liệu: ', error);
+      });
+  }, []);
+
+ 
+  const filterBikes = (type) => {
+    setSelectedType(type); 
+
+    if (type === 'All') {
+      setFilteredBikes(bikes); 
+    } else {
+      const filtered = bikes.filter((bike) => bike.type === type);
+      setFilteredBikes(filtered); 
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -131,13 +92,13 @@ export default function Main({ route, navigation }) {
           flex: 2,
           alignItems: 'flex-start',
           justifyContent: 'center',
+          paddingHorizontal: 10,
         }}>
         <Text
           style={{
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: '700',
             color: '#E94141',
-            marginLeft: 10,
           }}>
           The world's Best Bike
         </Text>
@@ -146,56 +107,80 @@ export default function Main({ route, navigation }) {
       <View
         style={{
           flex: 1,
-          alignItems: 'flex-start',
+          alignItems: 'center',
           flexDirection: 'row',
+          justifyContent: 'space-around',
+          paddingHorizontal: 10,
         }}>
         <TouchableOpacity
           style={{
-            borderColor: '#E94141',
+            borderColor: selectedType === 'All' ? '#E94141' : '#E9414126',
             borderWidth: 1,
-            width: '20%',
+            width: '30%',
             alignItems: 'center',
-            borderRadius: 5,
-            marginHorizontal: 10,
-          }}>
-          <Text style={{ color: '#E94141' }}> All</Text>
+            borderRadius: 10,
+            paddingVertical: 5,
+            backgroundColor: selectedType === 'All' ? '#FFEAEA' : 'transparent',
+          }}
+          onPress={() => filterBikes('All')}>
+          <Text
+            style={{
+              color: '#E94141',
+              fontSize: 16,
+              fontWeight: selectedType === 'All' ? '600' : '400',
+            }}>
+            All
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{
-            borderColor: '#E94141',
+            borderColor: selectedType === 'Roadbike' ? '#E94141' : '#E9414126',
             borderWidth: 1,
-            width: '20%',
+            width: '30%',
             alignItems: 'center',
-            borderRadius: 5,
-            marginHorizontal: 10,
-          }}>
-          <Text style={{ color: '#E94141' }}> Roadbike</Text>
+            borderRadius: 10,
+            paddingVertical: 5,
+            backgroundColor: selectedType === 'Roadbike' ? '#FFEAEA' : 'transparent',
+          }}
+          onPress={() => filterBikes('Roadbike')}>
+          <Text
+            style={{
+              color: '#E94141',
+              fontSize: 16,
+              fontWeight: selectedType === 'Roadbike' ? '600' : '400',
+            }}>
+            Roadbike
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{
-            borderColor: '#E94141',
+            borderColor: selectedType === 'Mountain' ? '#E94141' : '#E9414126',
             borderWidth: 1,
-            width: '25%',
+            width: '30%',
             alignItems: 'center',
-            borderRadius: 5,
-            marginHorizontal: 10,
-          }}>
-          <Text style={{ color: '#E94141' }}> Mountain</Text>
+            borderRadius: 10,
+            paddingVertical: 5,
+            backgroundColor: selectedType === 'Mountain' ? '#FFEAEA' : 'transparent',
+          }}
+          onPress={() => filterBikes('Mountain')}>
+          <Text
+            style={{
+              color: '#E94141',
+              fontSize: 16,
+              fontWeight: selectedType === 'Mountain' ? '600' : '400',
+            }}>
+            Mountain
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flex: 7,
-          justifyContent: 'space-between',
-        }}>
+      <View style={{ flex: 12 }}>
         <FlatList
-          style={{}}
-          data={products}
+          data={filteredBikes}
           renderItem={({ item }) => (
-            <Item name={item.name} img={item.image} price={item.price} />
+            <Item name={item.name} img={item.imageUrl} price={item.price} liked={item.liked} />
           )}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
@@ -205,5 +190,3 @@ export default function Main({ route, navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({});
