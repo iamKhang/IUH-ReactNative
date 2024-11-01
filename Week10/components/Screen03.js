@@ -1,28 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Mail, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { addJob } from '../redux/jobSlice';
 
 export default function Screen03({ route, navigation }) {
   const [newJob, setNewJob] = useState('');
+  const dispatch = useDispatch();
 
   const handleAddJob = () => {
-    console.log(newJob)
     if (newJob.trim() !== '') {
-      const newJobData = { job: newJob, completed: false };
-      axios
-        .post(
-          'https://67241b87493fac3cf24d2a84.mockapi.io/TodoApp',
-          newJobData
-        )
-        .then((res) => {
-          setNewJob('');
-           navigation.navigate('Screen02');
-        })
-        .catch((error) => {
-          console.error('Có lỗi xảy ra khi thêm công việc mới:', error);
-        });
+      dispatch(addJob(newJob));
+      setNewJob('');
+      navigation.navigate('Screen02');
     }
   };
 

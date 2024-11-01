@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -17,7 +17,8 @@ import {
   CirclePlus,
   ChevronLeft,
 } from 'lucide-react';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchJobs, deleteJob, setEditingJob, updateJob } from '../redux/jobSlice';
 
 const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
   <View
@@ -75,75 +76,33 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
 );
 
 export default function Screen02({ route, navigation }) {
-  const [jobs, setJobs] = useState([]);
-  const [newJob, setNewJob] = useState('');
-  const [editingJobId, setEditingJobId] = useState(null); 
-  const [editedJob, setEditedJob] = useState(''); 
-
-  const fetchJobs = () => {
-    axios
-      .get('https://67241b87493fac3cf24d2a84.mockapi.io/TodoApp')
-      .then((res) => {
-        setJobs(res.data.reverse()); 
-      })
-      .catch((error) => {
-        console.error('Có lỗi xảy ra khi lấy dữ liệu:', error);
-      });
-  };
+  const dispatch = useDispatch();
+  const { jobs, editingJobId, editedJob } = useSelector((state) => state.job);
+  const [tempEditedJob, setTempEditedJob] = useState('');
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchJobs();
-    }, [])
+      dispatch(fetchJobs());
+    }, [dispatch])
   );
 
   const handleDelete = (id) => {
-    axios
-      .delete(`https://67241b87493fac3cf24d2a84.mockapi.io/TodoApp/${id}`)
-      .then(() => {
-        setJobs((prevJobs) => prevJobs.filter((job) => job.id !== id));
-      })
-      .catch((error) => {
-        console.error('Có lỗi xảy ra khi xóa công việc:', error);
-      });
+    dispatch(deleteJob(id));
   };
 
   const handleToggleCompleted = (id, completed) => {
-    axios
-      .put(`https://67241b87493fac3cf24d2a84.mockapi.io/TodoApp/${id}`, {
-        completed,
-      })
-      .then(() => {
-        setJobs((prevJobs) =>
-          prevJobs.map((job) => (job.id === id ? { ...job, completed } : job))
-        );
-      })
-      .catch((error) => {
-        console.error('Có lỗi xảy ra khi cập nhật công việc:', error);
-      });
+    dispatch(updateJob({ id, completed }));
   };
 
   const handleEdit = (id, job) => {
-    setEditingJobId(id);
-    setEditedJob(job);
+    dispatch(setEditingJob({ id, job }));
+    setTempEditedJob(job);
   };
 
   const handleUpdateJob = () => {
-    if (editedJob.trim() !== '') {
-      axios
-        .put(`https://67241b87493fac3cf24d2a84.mockapi.io/TodoApp/${editingJobId}`, {
-          job: editedJob,
-        })
-        .then(() => {
-          setJobs((prevJobs) =>
-            prevJobs.map((job) => (job.id === editingJobId ? { ...job, job: editedJob } : job))
-          );
-          setEditingJobId(null); 
-          setEditedJob(''); 
-        })
-        .catch((error) => {
-          console.error('Có lỗi xảy ra khi cập nhật công việc:', error);
-        });
+    if (tempEditedJob.trim() !== '') {
+      dispatch(updateJob({ id: editingJobId, job: tempEditedJob }));
+      setTempEditedJob('');
     }
   };
 
@@ -181,8 +140,8 @@ export default function Screen02({ route, navigation }) {
         <View style={{ flexDirection: 'row', margin: 20, alignItems: 'center' }}>
           <TextInput
             style={{ flex: 1, borderWidth: 1, padding: 10, borderColor: '#ddd', borderRadius: 5 }}
-            value={editedJob}
-            onChangeText={setEditedJob}
+            value={tempEditedJob}
+            onChangeText={setTempEditedJob}
           />
           <TouchableOpacity onPress={handleUpdateJob} style={{ marginLeft: 10 }}>
             <Text style={{ color: '#295F98', fontWeight: 'bold' }}>Update</Text>
@@ -203,7 +162,7 @@ export default function Screen02({ route, navigation }) {
               onEdit={handleEdit}
             />
           )}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           showsHorizontalScrollIndicator={false}
         />
       </View>
