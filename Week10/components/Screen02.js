@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -7,6 +7,8 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { jobsState, fetchJobsSelector, updateJobSelector, deleteJobSelector } from '../redux/jobState';
 import { Checkbox } from 'react-native-paper';
 import {
   Pencil,
@@ -14,24 +16,9 @@ import {
   CirclePlus,
   ChevronLeft,
 } from 'lucide-react';
-import {
-  useFetchJobsQuery,
-  useDeleteJobMutation,
-  useUpdateJobMutation,
-} from '../redux/jobApi';
 
 const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
-  <View
-    style={{
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginVertical: 5,
-      marginHorizontal: 20,
-      minHeight: 50,
-      backgroundColor: '#ccc',
-      padding: 5,
-      borderRadius: 5,
-    }}>
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5, marginHorizontal: 20, minHeight: 50, backgroundColor: '#ccc', padding: 5, borderRadius: 5 }}>
     <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
       <Checkbox
         status={completed ? 'checked' : 'unchecked'}
@@ -42,33 +29,11 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
     <View style={{ flex: 4, flexDirection: 'row', alignItems: 'center' }}>
       <Text>{job}</Text>
     </View>
-    <View
-      style={{
-        justifyContent: 'center',
-        flex: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}>
-      <TouchableOpacity
-        style={{
-          justifyContent: 'center',
-          height: '50%',
-          marginRight: 20,
-          alignItems: 'center',
-          borderRadius: 5,
-        }}
-        onPress={() => onEdit(id, job)}>
+    <View style={{ justifyContent: 'center', flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+      <TouchableOpacity style={{ justifyContent: 'center', height: '50%', marginRight: 20, alignItems: 'center', borderRadius: 5 }} onPress={() => onEdit(id, job)}>
         <Pencil />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={{
-          justifyContent: 'center',
-          height: '50%',
-          marginRight: 20,
-          alignItems: 'center',
-          borderRadius: 5,
-        }}
-        onPress={() => onDelete(id)}>
+      <TouchableOpacity style={{ justifyContent: 'center', height: '50%', marginRight: 20, alignItems: 'center', borderRadius: 5 }} onPress={() => onDelete(id)}>
         <Trash2 style={{ color: 'red' }} />
       </TouchableOpacity>
     </View>
@@ -76,9 +41,10 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
 );
 
 export default function Screen02({ navigation }) {
-  const { data: jobs = [], isLoading } = useFetchJobsQuery();
-  const [deleteJob] = useDeleteJobMutation();
-  const [updateJob] = useUpdateJobMutation();
+  const jobs = useRecoilValue(fetchJobsSelector);
+  const setJobs = useSetRecoilState(jobsState);
+  const deleteJob = useSetRecoilState(deleteJobSelector);
+  const updateJob = useSetRecoilState(updateJobSelector);
   const [editingJobId, setEditingJobId] = useState(null);
   const [tempEditedJob, setTempEditedJob] = useState('');
 
@@ -87,7 +53,7 @@ export default function Screen02({ navigation }) {
   };
 
   const handleToggleCompleted = (id, completed) => {
-    updateJob({ id, completed });
+    updateJob(id)({ completed });
   };
 
   const handleEdit = (id, job) => {
@@ -97,17 +63,15 @@ export default function Screen02({ navigation }) {
 
   const handleUpdateJob = () => {
     if (tempEditedJob.trim() !== '') {
-      updateJob({ id: editingJobId, job: tempEditedJob });
+      updateJob(editingJobId)({ job: tempEditedJob });
       setEditingJobId(null);
       setTempEditedJob('');
     }
   };
 
-  if (isLoading) return <Text>Loading...</Text>;
-
   return (
     <View style={styles.container}>
-      <View
+     <View
         style={{
           backgroundColor: '#295F98',
           width: '100%',

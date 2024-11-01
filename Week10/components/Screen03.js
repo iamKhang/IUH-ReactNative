@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { View, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Mail, ArrowRight } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { addJob } from '../redux/jobSlice';
+import { useSetRecoilState } from 'recoil';
+import { addJobSelector } from '../redux/jobState';
 
 export default function Screen03({ route, navigation }) {
   const [newJob, setNewJob] = useState('');
-  const dispatch = useDispatch();
+  const addJob = useSetRecoilState(addJobSelector);
 
   const handleAddJob = () => {
     if (newJob.trim() !== '') {
-      dispatch(addJob(newJob));
+      addJob(newJob);
       setNewJob('');
       navigation.navigate('Screen02');
     }
   };
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: '#f5f5f5', paddingHorizontal: 20 }}>
-      <View
-        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 50 }}>
-        <View
-          style={{
-            flex: 7,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5', paddingHorizontal: 20 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 50 }}>
+        <View style={{ flex: 7, alignItems: 'center', justifyContent: 'center' }}>
           <Image
             source={require('../assets/shin.jpg')}
             style={{
@@ -39,24 +32,14 @@ export default function Screen03({ route, navigation }) {
         </View>
         <View>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Hi Khang</Text>
-          <Text style={{ fontSize: 14, color: '#777' }}>
-            Have a great day ahead
-          </Text>
+          <Text style={{ fontSize: 14, color: '#777' }}>Have a great day ahead</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ marginLeft: 'auto' }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 'auto' }}>
           <ArrowRight color="#000" size={20} />
         </TouchableOpacity>
       </View>
 
-      <Text
-        style={{
-          fontSize: 24,
-          fontWeight: 'bold',
-          textAlign: 'center',
-          marginVertical: 40,
-        }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginVertical: 40 }}>
         ADD YOUR JOB
       </Text>
 
@@ -69,7 +52,8 @@ export default function Screen03({ route, navigation }) {
           borderRadius: 5,
           paddingHorizontal: 10,
           marginBottom: 20,
-        }}>
+        }}
+      >
         <Mail color="#295F98" size={20} />
         <TextInput
           placeholder="input your job"
@@ -86,10 +70,9 @@ export default function Screen03({ route, navigation }) {
           paddingVertical: 10,
           borderRadius: 5,
         }}
-        onPress={handleAddJob}>
-        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
-          FINISH
-        </Text>
+        onPress={handleAddJob}
+      >
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>FINISH</Text>
       </TouchableOpacity>
 
       <View style={{ alignItems: 'center', marginTop: 30 }}>
