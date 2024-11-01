@@ -1,17 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import createSagaMiddleware from 'redux-saga';
 import jobReducer from './jobSlice';
-import rootSaga from '../sagas';
-
-const sagaMiddleware = createSagaMiddleware();
+import { jobApi } from './jobApi';
 
 const store = configureStore({
   reducer: {
     job: jobReducer,
+    [jobApi.reducerPath]: jobApi.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(jobApi.middleware),
 });
-
-sagaMiddleware.run(rootSaga);
 
 export default store;
