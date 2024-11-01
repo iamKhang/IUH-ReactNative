@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   View,
@@ -7,18 +7,18 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import { Checkbox } from 'react-native-paper';
 import {
-  Check,
   Pencil,
   Trash2,
-  Search,
   CirclePlus,
   ChevronLeft,
 } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchJobs, deleteJob, setEditingJob, updateJob } from '../redux/jobSlice';
+import {
+  useFetchJobsQuery,
+  useDeleteJobMutation,
+  useUpdateJobMutation,
+} from '../redux/jobApi';
 
 const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
   <View
@@ -75,36 +75,35 @@ const Item = ({ job, completed, id, onDelete, onToggleCompleted, onEdit }) => (
   </View>
 );
 
-export default function Screen02({ route, navigation }) {
-  const dispatch = useDispatch();
-  const { jobs, editingJobId, editedJob } = useSelector((state) => state.job);
+export default function Screen02({ navigation }) {
+  const { data: jobs = [], isLoading } = useFetchJobsQuery();
+  const [deleteJob] = useDeleteJobMutation();
+  const [updateJob] = useUpdateJobMutation();
+  const [editingJobId, setEditingJobId] = useState(null);
   const [tempEditedJob, setTempEditedJob] = useState('');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      dispatch(fetchJobs());
-    }, [dispatch])
-  );
-
   const handleDelete = (id) => {
-    dispatch(deleteJob(id));
+    deleteJob(id);
   };
 
   const handleToggleCompleted = (id, completed) => {
-    dispatch(updateJob({ id, completed }));
+    updateJob({ id, completed });
   };
 
   const handleEdit = (id, job) => {
-    dispatch(setEditingJob({ id, job }));
+    setEditingJobId(id);
     setTempEditedJob(job);
   };
 
   const handleUpdateJob = () => {
     if (tempEditedJob.trim() !== '') {
-      dispatch(updateJob({ id: editingJobId, job: tempEditedJob }));
+      updateJob({ id: editingJobId, job: tempEditedJob });
+      setEditingJobId(null);
       setTempEditedJob('');
     }
   };
+
+  if (isLoading) return <Text>Loading...</Text>;
 
   return (
     <View style={styles.container}>
@@ -148,7 +147,6 @@ export default function Screen02({ route, navigation }) {
           </TouchableOpacity>
         </View>
       )}
-
       <View style={{ flex: 8, marginTop: 10 }}>
         <FlatList
           data={jobs}
@@ -166,26 +164,9 @@ export default function Screen02({ route, navigation }) {
           showsHorizontalScrollIndicator={false}
         />
       </View>
-
-      <View
-        style={{
-          width: '100%',
-          alignItems: 'center',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginTop: 10,
-          marginBottom: 20,
-          borderRadius: 10,
-        }}>
+      <View style={{ width: '100%', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginTop: 10, marginBottom: 20, borderRadius: 10 }}>
         <TouchableOpacity onPress={() => navigation.navigate('Screen03')}>
-          <CirclePlus
-            style={{
-              backgroundColor: '#295F98',
-              color: '#fff',
-              padding: 5,
-              borderRadius: '50%',
-            }}
-          />
+          <CirclePlus style={{ backgroundColor: '#295F98', color: '#fff', padding: 5, borderRadius: '50%' }} />
         </TouchableOpacity>
       </View>
     </View>
